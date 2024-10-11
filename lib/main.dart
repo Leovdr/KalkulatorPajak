@@ -43,7 +43,17 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kalkulator Pajak'),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/images/logo.png', // Path gambar logo
+              height: 40,
+              width: 40,
+            ),
+            const SizedBox(width: 10), // Memberi jarak antara logo dan teks
+            const Text('Kalkulator Pajak'), // Teks di sebelah kanan logo
+          ],
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -51,11 +61,18 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Divider(
+                color: Colors.grey,
+                thickness: 2,
+              ),
+              const SizedBox(height: 20), // Spasi antara garis dan teks PPh 21
               const Text(
                 'PPh 21',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
+
+              // Dropdown untuk Jenis Pemotongan
               DropdownButtonFormField<String>(
                 value: selectedJenisPemotongan,
                 items: ['PPh 21 Bulanan', 'PPh 21 Tahunan']
@@ -75,6 +92,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               const SizedBox(height: 16),
+
+              // Dropdown untuk Kode Objek Pajak
               DropdownButtonFormField<String>(
                 value: selectedKodeObjekPajak,
                 items: kodeObjekPajakList
@@ -94,6 +113,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               const SizedBox(height: 16),
+
+              // Skema Penghitungan
               const Text('Skema Penghitungan'),
               Row(
                 children: [
@@ -124,6 +145,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
               const SizedBox(height: 16),
+
+              // Switch untuk PPh Pasal 21
               SwitchListTile(
                 title: const Text(
                     'Penghasilan yang telah dipotong PPh Pasal 21 pada masa pajak yang sama'),
@@ -135,6 +158,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
               const SizedBox(height: 16),
+
+              // Input untuk Penghasilan Bruto
               TextFormField(
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
@@ -148,6 +173,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
               const SizedBox(height: 16),
+
+              // Dropdown untuk PTKP
               DropdownButtonFormField<String>(
                 value: selectedPTKP,
                 items: ptkpList
@@ -167,56 +194,54 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               const SizedBox(height: 16),
+
+              // Tombol Hitung
               ElevatedButton(
                 onPressed: _hitungPajak,
                 child: const Text('Hitung'),
               ),
               const SizedBox(height: 16),
+
+              // Hasil Penghitungan
               const Text(
                 'PENGHITUNGAN PPh PASAL 21',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              // Text('DPP: ${dpp.toStringAsFixed(2)}'),
-              // Text('Tarif: ${_getTarif()}%'),
-              // Text('PPh 21: ${pph21.toStringAsFixed(2)}'),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextFormField(
-                    readOnly: true,  // Membuat text form ini hanya untuk membaca
-                    initialValue: dpp.toStringAsFixed(2),
-                    decoration: const InputDecoration(
-                      labelText: 'DPP',
-                      border: OutlineInputBorder(),
-                      filled: true,
-                      fillColor: Colors.white, // Mengatur warna latar belakang input field
-                    ),
-                  ),
-                  const SizedBox(height: 16), // Jarak antar field
-                  TextFormField(
-                    readOnly: true,
-                    initialValue: '${_getTarif()}%',
-                    decoration: const InputDecoration(
-                      labelText: 'Tarif',
-                      border: OutlineInputBorder(),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    readOnly: true,
-                    initialValue: pph21.toStringAsFixed(2),
-                    decoration: const InputDecoration(
-                      labelText: 'PPh 21',
-                      border: OutlineInputBorder(),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                  ),
-                ],
-              )
+
+              // Output DPP, Tarif, PPh 21
+              TextFormField(
+                readOnly: true,
+                initialValue: dpp.toStringAsFixed(2),
+                decoration: const InputDecoration(
+                  labelText: 'DPP',
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                readOnly: true,
+                initialValue: '${_getTarif()}%',
+                decoration: const InputDecoration(
+                  labelText: 'Tarif',
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                readOnly: true,
+                initialValue: pph21.toStringAsFixed(2),
+                decoration: const InputDecoration(
+                  labelText: 'PPh 21',
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+              ),
             ],
           ),
         ),
@@ -226,14 +251,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _hitungPajak() {
     setState(() {
-      // Contoh perhitungan sederhana
-      dpp = penghasilanBruto * 0.95; // misalnya 95% dari penghasilan bruto
+      dpp = penghasilanBruto * 0.95; // 95% dari penghasilan bruto
       pph21 = dpp * _getTarif() / 100;
     });
   }
 
   double _getTarif() {
-    // Logika sederhana untuk menentukan tarif pajak
     if (dpp <= 50000000) {
       return 5;
     } else if (dpp <= 250000000) {
