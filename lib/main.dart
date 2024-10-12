@@ -27,17 +27,17 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String? selectedJenisPemotongan = 'PPh 21 Bulanan';
-  String? selectedKodeObjekPajak;
-  String? selectedPTKP;
-  bool isGross = true;
-  bool isTidakAda = false;
-  double penghasilanBruto = 0;
-  double dpp = 0;
-  double pph21 = 0;
+  bool isDpp = true;
+  bool selectedPPn = false;
+  bool selectedPPh21Eselon3 = false;
+  bool selectedPPh21Eselon4 = false;
+  bool selectedPPh22 = false;
+  bool selectedPPh23 = false;
+  bool selectedPajakDaerah = false;
 
-  final kodeObjekPajakList = ['Kode 1', 'Kode 2', 'Kode 3'];
-  final ptkpList = ['PTKP A', 'PTKP B', 'PTKP C'];
+  double nominal = 0;
+  double nominalDpp = 0;
+  double hasil = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -46,12 +46,11 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Row(
           children: [
             Image.asset(
-              'assets/images/logo.png', // Path gambar logo
+              'assets/images/logo.png', // Path to your logo
               height: 40,
-              width: 40,
             ),
-            const SizedBox(width: 10), // Memberi jarak antara logo dan teks
-            const Text('Kalkulator Pajak'), // Teks di sebelah kanan logo
+            const SizedBox(width: 10),
+            const Text('Kalkulator Pajak'),
           ],
         ),
       ),
@@ -61,186 +60,238 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Divider(
-                color: Colors.grey,
-                thickness: 2,
-              ),
-              const SizedBox(height: 20), // Spasi antara garis dan teks PPh 21
-              const Text(
-                'PPh 21',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-
-              // Dropdown untuk Jenis Pemotongan
-              DropdownButtonFormField<String>(
-                value: selectedJenisPemotongan,
-                items: ['PPh 21 Bulanan', 'PPh 21 Tahunan']
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(item),
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedJenisPemotongan = value;
-                  });
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Jenis Pemotongan',
-                  border: OutlineInputBorder(),
+              // Field Input NOMINAL
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: TextFormField(
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'NOMINAL',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      nominal = double.tryParse(value) ?? 0;
+                    });
+                  },
                 ),
               ),
               const SizedBox(height: 16),
 
-              // Dropdown untuk Kode Objek Pajak
-              DropdownButtonFormField<String>(
-                value: selectedKodeObjekPajak,
-                items: kodeObjekPajakList
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(item),
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedKodeObjekPajak = value;
-                  });
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Kode Objek Pajak',
-                  border: OutlineInputBorder(),
+              // RadioButton DPP / TANPA DPP
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: RadioListTile<bool>(
+                        title: const Text('DPP'),
+                        value: true,
+                        groupValue: isDpp,
+                        onChanged: (value) {
+                          setState(() {
+                            isDpp = value!;
+                          });
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: RadioListTile<bool>(
+                        title: const Text('TANPA DPP'),
+                        value: false,
+                        groupValue: isDpp,
+                        onChanged: (value) {
+                          setState(() {
+                            isDpp = value!;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Field Input NOMINAL DPP
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: TextFormField(
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'NOMINAL DPP',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      nominalDpp = double.tryParse(value) ?? 0;
+                    });
+                  },
                 ),
               ),
               const SizedBox(height: 16),
 
-              // Skema Penghitungan
-              const Text('Skema Penghitungan'),
-              Row(
-                children: [
-                  Expanded(
-                    child: RadioListTile<bool>(
-                      title: const Text('Gross'),
+              // Tombol HASIL
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Center(
+                  child: ElevatedButton(
+                    onPressed: _hitungPajak,
+                    child: const Text('HASIL'),
+                  ),
+                ),
+              ),
+
+              // Garis di bawah tombol hasil
+              const SizedBox(height: 16),
+              const Divider(thickness: 2, color: Colors.black),
+              const SizedBox(height: 16),
+
+              // Field PPn dengan radio list di samping kiri
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    Radio(
                       value: true,
-                      groupValue: isGross,
+                      groupValue: selectedPPn,
                       onChanged: (value) {
                         setState(() {
-                          isGross = value!;
+                          selectedPPn = value!;
                         });
                       },
                     ),
-                  ),
-                  Expanded(
-                    child: RadioListTile<bool>(
-                      title: const Text('Gross Up'),
-                      value: false,
-                      groupValue: isGross,
+                    Expanded(
+                      child: _buildReadOnlyField('PPn', '10%'),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Field PPh21 Eselon III Kebawah dengan radio list di samping kiri
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    Radio(
+                      value: true,
+                      groupValue: selectedPPh21Eselon3,
                       onChanged: (value) {
                         setState(() {
-                          isGross = value!;
+                          selectedPPh21Eselon3 = value!;
                         });
                       },
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Switch untuk PPh Pasal 21
-              SwitchListTile(
-                title: const Text(
-                    'Penghasilan yang telah dipotong PPh Pasal 21 pada masa pajak yang sama'),
-                value: isTidakAda,
-                onChanged: (value) {
-                  setState(() {
-                    isTidakAda = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Input untuk Penghasilan Bruto
-              TextFormField(
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Penghasilan Bruto',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    penghasilanBruto = double.tryParse(value) ?? 0;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Dropdown untuk PTKP
-              DropdownButtonFormField<String>(
-                value: selectedPTKP,
-                items: ptkpList
-                    .map((item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(item),
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedPTKP = value;
-                  });
-                },
-                decoration: const InputDecoration(
-                  labelText: 'PTKP',
-                  border: OutlineInputBorder(),
+                    Expanded(
+                      child: _buildReadOnlyField('PPh21 Eselon III Kebawah', '5%'),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 16),
 
-              // Tombol Hitung
-              ElevatedButton(
-                onPressed: _hitungPajak,
-                child: const Text('Hitung'),
+              // Field PPh21 Eselon IV dengan radio list di samping kiri
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    Radio(
+                      value: true,
+                      groupValue: selectedPPh21Eselon4,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedPPh21Eselon4 = value!;
+                        });
+                      },
+                    ),
+                    Expanded(
+                      child: _buildReadOnlyField('PPh21 Eselon IV', '15%'),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
 
-              // Hasil Penghitungan
-              const Text(
-                'PENGHITUNGAN PPh PASAL 21',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              // Field PPh 22 dengan radio list di samping kiri
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    Radio(
+                      value: true,
+                      groupValue: selectedPPh22,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedPPh22 = value!;
+                        });
+                      },
+                    ),
+                    Expanded(
+                      child: _buildReadOnlyField('PPh 22', '2.5%'),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
 
-              // Output DPP, Tarif, PPh 21
-              TextFormField(
-                readOnly: true,
-                initialValue: dpp.toStringAsFixed(2),
-                decoration: const InputDecoration(
-                  labelText: 'DPP',
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Colors.white,
+              // Field PPh 23 dengan radio list di samping kiri (read-only)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    Radio(
+                      value: true,
+                      groupValue: selectedPPh23,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedPPh23 = value!;
+                        });
+                      },
+                    ),
+                    Expanded(
+                      child: _buildReadOnlyField('PPh 23', ''),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                readOnly: true,
-                initialValue: '${_getTarif()}%',
-                decoration: const InputDecoration(
-                  labelText: 'Tarif',
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Colors.white,
+
+              // Field PAJAK DAERAH dengan radio list di samping kiri (read-only)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    Radio(
+                      value: true,
+                      groupValue: selectedPajakDaerah,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedPajakDaerah = value!;
+                        });
+                      },
+                    ),
+                    Expanded(
+                      child: _buildReadOnlyField('PAJAK DAERAH', ''),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                readOnly: true,
-                initialValue: pph21.toStringAsFixed(2),
-                decoration: const InputDecoration(
-                  labelText: 'PPh 21',
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Colors.white,
+
+              // Text bold "NILAI BERSIH SEMUA PERHITUNGAN"
+              Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Center(
+                child: const Text(
+                  'NILAI BERSIH SEMUA PERHITUNGAN',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
+              ),
+            ),
+            
+              // Field NILAI BERSIH (read-only)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: _buildReadOnlyField('NILAI BERSIH', ''),
               ),
             ],
           ),
@@ -249,22 +300,24 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _hitungPajak() {
-    setState(() {
-      dpp = penghasilanBruto * 0.95; // 95% dari penghasilan bruto
-      pph21 = dpp * _getTarif() / 100;
-    });
+  // Widget for read-only text fields
+  Widget _buildReadOnlyField(String label, String value) {
+    return TextFormField(
+      readOnly: true,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        filled: true,
+        fillColor: Colors.grey.shade200,
+      ),
+      initialValue: value,
+    );
   }
 
-  double _getTarif() {
-    if (dpp <= 50000000) {
-      return 5;
-    } else if (dpp <= 250000000) {
-      return 15;
-    } else if (dpp <= 500000000) {
-      return 25;
-    } else {
-      return 30;
-    }
+  // Function to calculate taxes
+  void _hitungPajak() {
+    setState(() {
+      hasil = nominal * 0.10; // Contoh sederhana menghitung PPn 10%
+    });
   }
 }
