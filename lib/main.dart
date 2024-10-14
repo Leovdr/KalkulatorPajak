@@ -80,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
               // RadioButton DPP / TANPA DPP
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                padding: const EdgeInsets.symmetric(vertical: 1.0),
                 child: Row(
                   children: [
                     Expanded(
@@ -111,6 +111,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
 
+              // Tombol HASIL
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Center(
+                  child: ElevatedButton(
+                    onPressed: _hitungPajak,
+                    child: const Text('HASIL'),
+                  ),
+                ),
+              ),
+
               // Field Input NOMINAL DPP
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -129,164 +140,83 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               const SizedBox(height: 16),
 
-              // Tombol HASIL
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Center(
-                  child: ElevatedButton(
-                    onPressed: _hitungPajak,
-                    child: const Text('HASIL'),
-                  ),
-                ),
-              ),
-
               // Garis di bawah tombol hasil
               const SizedBox(height: 16),
               const Divider(thickness: 2, color: Colors.black),
               const SizedBox(height: 16),
 
-              // Field PPn dengan radio list di samping kiri
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  children: [
-                    Radio(
-                      value: true,
-                      groupValue: selectedPPn,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedPPn = value!;
-                        });
-                      },
-                    ),
-                    Expanded(
-                      child: _buildReadOnlyField('PPn', '10%'),
-                    ),
-                  ],
-                ),
+              // Field dengan Radio di sebelah kiri dan input readonly di sebelah kanan
+              _buildRadioTextField(
+                labelText: 'PPn',
+                value: '10%',
+                groupValue: selectedPPn,
+                onChanged: (value) {
+                  setState(() {
+                    selectedPPn = value;
+                  });
+                },
               ),
-              const SizedBox(height: 16),
-
-              // Field PPh21 Eselon III Kebawah dengan radio list di samping kiri
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  children: [
-                    Radio(
-                      value: true,
-                      groupValue: selectedPPh21Eselon3,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedPPh21Eselon3 = value!;
-                        });
-                      },
-                    ),
-                    Expanded(
-                      child: _buildReadOnlyField('PPh21 Eselon III Kebawah', '5%'),
-                    ),
-                  ],
-                ),
+              _buildRadioTextField(
+                labelText: 'PPh21 Eselon III',
+                value: '5%',
+                groupValue: selectedPPh21Eselon3,
+                onChanged: (value) {
+                  setState(() {
+                    selectedPPh21Eselon3 = value;
+                  });
+                },
               ),
-              const SizedBox(height: 16),
-
-              // Field PPh21 Eselon IV dengan radio list di samping kiri
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  children: [
-                    Radio(
-                      value: true,
-                      groupValue: selectedPPh21Eselon4,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedPPh21Eselon4 = value!;
-                        });
-                      },
-                    ),
-                    Expanded(
-                      child: _buildReadOnlyField('PPh21 Eselon IV', '15%'),
-                    ),
-                  ],
-                ),
+              _buildRadioTextField(
+                labelText: 'PPh21 Eselon IV',
+                value: '15%',
+                groupValue: selectedPPh21Eselon4,
+                onChanged: (value) {
+                  setState(() {
+                    selectedPPh21Eselon4 = value;
+                  });
+                },
               ),
-              const SizedBox(height: 16),
-
-              // Field PPh 22 dengan radio list di samping kiri
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  children: [
-                    Radio(
-                      value: true,
-                      groupValue: selectedPPh22,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedPPh22 = value!;
-                        });
-                      },
-                    ),
-                    Expanded(
-                      child: _buildReadOnlyField('PPh 22', '2.5%'),
-                    ),
-                  ],
-                ),
+              _buildRadioTextField(
+                labelText: 'PPh 22',
+                value: '1.5%',
+                groupValue: selectedPPh22,
+                onChanged: (value) {
+                  setState(() {
+                    selectedPPh22 = value;
+                  });
+                },
               ),
-              const SizedBox(height: 16),
-
-              // Field PPh 23 dengan radio list di samping kiri (read-only)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  children: [
-                    Radio(
-                      value: true,
-                      groupValue: selectedPPh23,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedPPh23 = value!;
-                        });
-                      },
-                    ),
-                    Expanded(
-                      child: _buildReadOnlyField('PPh 23', ''),
-                    ),
-                  ],
-                ),
+              _buildRadioTextField(
+                labelText: 'PPh 23',
+                value: '',
+                groupValue: selectedPPh23,
+                onChanged: (value) {
+                  setState(() {
+                    selectedPPh23 = value;
+                  });
+                },
               ),
-              const SizedBox(height: 16),
-
-              // Field PAJAK DAERAH dengan radio list di samping kiri (read-only)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  children: [
-                    Radio(
-                      value: true,
-                      groupValue: selectedPajakDaerah,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedPajakDaerah = value!;
-                        });
-                      },
-                    ),
-                    Expanded(
-                      child: _buildReadOnlyField('PAJAK DAERAH', ''),
-                    ),
-                  ],
-                ),
+              _buildRadioTextField(
+                labelText: 'PAJAK DAERAH',
+                value: '',
+                groupValue: selectedPajakDaerah,
+                onChanged: (value) {
+                  setState(() {
+                    selectedPajakDaerah = value;
+                  });
+                },
               ),
-              const SizedBox(height: 16),
 
               // Text bold "NILAI BERSIH SEMUA PERHITUNGAN"
               Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Center(
-                child: const Text(
-                  'NILAI BERSIH SEMUA PERHITUNGAN',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Center(
+                  child: const Text(
+                    'NILAI BERSIH SEMUA PERHITUNGAN',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
-            ),
             
               // Field NILAI BERSIH (read-only)
               Padding(
@@ -296,6 +226,53 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // Widget for radio button + text + read-only field
+  Widget _buildRadioTextField({
+    required String labelText,
+    required String value,
+    required dynamic groupValue,
+    required Function(dynamic) onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Radio button di sebelah kiri
+          Radio(
+            value: true,
+            groupValue: groupValue,
+            onChanged: onChanged,
+          ),
+          
+          // Text label di tengah
+          Text(
+            labelText,
+            style: TextStyle(fontSize: 16),
+          ),
+          
+          // Expanded untuk memaksa TextField berada di sebelah kanan
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerRight, // Align TextField ke kanan
+              child: Container(
+                width: 300, // Set width untuk field read-only
+                child: TextField(
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    hintText: value,
+                    border: OutlineInputBorder(),
+                    isDense: true, // Membuat field lebih compact
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
