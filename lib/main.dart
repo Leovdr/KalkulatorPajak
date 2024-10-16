@@ -116,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Center(
                   child: ElevatedButton(
-                    onPressed: _hitungPajak,
+                    onPressed: _hitungPajaak,
                     child: const Text('HASIL'),
                   ),
                 ),
@@ -126,7 +126,9 @@ class _MyHomePageState extends State<MyHomePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: TextFormField(
-                  keyboardType: TextInputType.number,
+                  readOnly: true,
+                  controller: TextEditingController(
+                      text: "${nominalDpp.toStringAsFixed(2)}"),
                   decoration: const InputDecoration(
                     labelText: 'NOMINAL DPP',
                     border: OutlineInputBorder(),
@@ -148,80 +150,103 @@ class _MyHomePageState extends State<MyHomePage> {
               // Field dengan Radio di sebelah kiri dan input readonly di sebelah kanan
               _buildRadioTextField(
                 labelText: 'PPn',
-                value: '10%',
+                value: selectedPPn ? hitungPPn(nominal).toStringAsFixed(2) : '',
                 groupValue: selectedPPn,
                 onChanged: (value) {
-                  setState(() {
-                    selectedPPn = value;
-                  });
+                  if (!isDpp) {
+                    setState(() {
+                      selectedPPn = value;
+                    });
+                  }
                 },
               ),
               _buildRadioTextField(
                 labelText: 'PPh21 Eselon III',
-                value: '5%',
+                value: selectedPPh21Eselon3
+                    ? hitungPPh21Eselon3(nominal).toStringAsFixed(2)
+                    : '',
                 groupValue: selectedPPh21Eselon3,
                 onChanged: (value) {
-                  setState(() {
-                    selectedPPh21Eselon3 = value;
-                  });
+                  if (!isDpp) {
+                    setState(() {
+                      selectedPPh21Eselon3 = value;
+                    });
+                  }
                 },
               ),
               _buildRadioTextField(
                 labelText: 'PPh21 Eselon IV',
-                value: '15%',
+                value: selectedPPh21Eselon4
+                    ? hitungPPh21Eselon4(nominal).toStringAsFixed(2)
+                    : '',
                 groupValue: selectedPPh21Eselon4,
                 onChanged: (value) {
-                  setState(() {
-                    selectedPPh21Eselon4 = value;
-                  });
+                  if (!isDpp) {
+                    setState(() {
+                      selectedPPh21Eselon4 = value;
+                    });
+                  }
                 },
               ),
               _buildRadioTextField(
                 labelText: 'PPh 22',
-                value: '1.5%',
+                value: selectedPPh22
+                    ? hitungPPh22(nominal).toStringAsFixed(2)
+                    : '',
                 groupValue: selectedPPh22,
                 onChanged: (value) {
-                  setState(() {
-                    selectedPPh22 = value;
-                  });
+                  if (!isDpp) {
+                    setState(() {
+                      selectedPPh22 = value;
+                    });
+                  }
                 },
               ),
               _buildRadioTextField(
                 labelText: 'PPh 23',
-                value: '',
+                value: selectedPPh23
+                    ? hitungPPh23(nominal).toStringAsFixed(2)
+                    : '',
                 groupValue: selectedPPh23,
                 onChanged: (value) {
-                  setState(() {
-                    selectedPPh23 = value;
-                  });
+                  if (!isDpp) {
+                    setState(() {
+                      selectedPPh23 = value;
+                    });
+                  }
                 },
               ),
               _buildRadioTextField(
                 labelText: 'PAJAK DAERAH',
-                value: '',
+                value: selectedPajakDaerah
+                    ? hitungPajakDaerah(nominal).toStringAsFixed(2)
+                    : '',
                 groupValue: selectedPajakDaerah,
                 onChanged: (value) {
-                  setState(() {
-                    selectedPajakDaerah = value;
-                  });
+                  if (!isDpp) {
+                    setState(() {
+                      selectedPajakDaerah = value;
+                    });
+                  }
                 },
               ),
 
               // Text bold "NILAI BERSIH SEMUA PERHITUNGAN"
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Center(
-                  child: const Text(
+                  child: Text(
                     'NILAI BERSIH SEMUA PERHITUNGAN',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-            
+
               // Field NILAI BERSIH (read-only)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: _buildReadOnlyField('NILAI BERSIH', ''),
+                child: _buildReadOnlyField(
+                    'NILAI BERSIH', hasil.toStringAsFixed(2)),
               ),
             ],
           ),
@@ -247,25 +272,26 @@ class _MyHomePageState extends State<MyHomePage> {
             value: true,
             groupValue: groupValue,
             onChanged: onChanged,
+            toggleable: true,
           ),
-          
+
           // Text label di tengah
           Text(
             labelText,
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
-          
+
           // Expanded untuk memaksa TextField berada di sebelah kanan
           Expanded(
             child: Align(
               alignment: Alignment.centerRight, // Align TextField ke kanan
-              child: Container(
+              child: SizedBox(
                 width: 300, // Set width untuk field read-only
                 child: TextField(
                   readOnly: true,
                   decoration: InputDecoration(
                     hintText: value,
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
                     isDense: true, // Membuat field lebih compact
                   ),
                 ),
@@ -291,10 +317,78 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  // Function to calculate taxes
-  void _hitungPajak() {
+  void _hitungPajaak() {
     setState(() {
-      hasil = nominal * 0.10; // Contoh sederhana menghitung PPn 10%
+      // Periksa apakah DPP dipilih
+      if (isDpp) {
+        setState(() {
+          selectedPPn = hasil > 0;
+          _hitungPajaak();
+        });
+        nominalDpp = (100 / 111) * nominal;
+        hasil = (11 / 111) * nominal; // PPN dihitung berdasarkan nilai nominal
+      } else {
+        nominalDpp = 0;
+        hasil = 0; // Reset hasil
+
+        // Hitung pajak berdasarkan radio button yang dipilih
+        if (selectedPPn) {
+          hasil += hitungPPn(nominal);
+        }
+        if (selectedPPh21Eselon3) {
+          hasil += hitungPPh21Eselon3(nominal);
+        }
+        if (selectedPPh21Eselon4) {
+          hasil += hitungPPh21Eselon4(nominal);
+        }
+        if (selectedPPh22) {
+          hasil += hitungPPh22(nominal);
+        }
+        if (selectedPPh23) {
+          hasil += hitungPPh23(nominal);
+        }
+        if (selectedPajakDaerah) {
+          hasil += hitungPajakDaerah(nominal);
+        }
+
+        // Deselect all radio buttons
+        selectedPPn = false;
+        selectedPPh21Eselon3 = false;
+        selectedPPh21Eselon4 = false;
+        selectedPPh22 = false;
+        selectedPPh23 = false;
+        selectedPajakDaerah = false;
+      }
     });
+  }
+
+  // Fungsi untuk menghitung PPN dengan nilai 10%
+  double hitungPPn(double nominal) {
+    return nominal * 0.10;
+  }
+
+  // Fungsi untuk menghitung PPh21 Eselon 3 dengan nilai 5%
+  double hitungPPh21Eselon3(double nominal) {
+    return nominal * 0.05;
+  }
+
+  // Fungsi untuk menghitung PPh21 Eselon 4 dengan nilai 15%
+  double hitungPPh21Eselon4(double nominal) {
+    return nominal * 0.15;
+  }
+
+  // Fungsi untuk menghitung PPh 22 dengan nilai 1.5%
+  double hitungPPh22(double nominal) {
+    return nominal * 0.015;
+  }
+
+  // Fungsi untuk menghitung PPh 23 dengan nilai 2%
+  double hitungPPh23(double nominal) {
+    return nominal * 0.02;
+  }
+
+  // Fungsi untuk menghitung Pajak Daerah dengan nilai 1%
+  double hitungPajakDaerah(double nominal) {
+    return nominal * 0.01;
   }
 }
